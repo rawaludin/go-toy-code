@@ -32,6 +32,13 @@ func removeDuplicate(upstream, downstream chan string) {
 	close(downstream)
 }
 
+func splitWords(words string, downstream chan string) {
+	for _, word := range strings.Fields(words) {
+		downstream <- word
+	}
+	close(downstream)
+}
+
 func printGopher(upstream chan string) {
 	for v := range upstream {
 		fmt.Println(v)
@@ -46,4 +53,8 @@ func main() {
 	go filterGopher(c0, c1)
 	go removeDuplicate(c1, c2)
 	printGopher(c2)
+
+	c3 := make(chan string)
+	go splitWords("Sometimes it’s easier to operate on words than on sentences. Write a pipeline element that takes strings, splits them up into words (you can use the Fields function from the strings package), and sends all the words, one by one, to the next pipeline stage.", c3)
+	printGopher(c3)
 }
